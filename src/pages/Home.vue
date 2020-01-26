@@ -8,9 +8,9 @@
     <ul>
       <li><router-link :to="URLS.COMMENTS">Comments</router-link></li>
       <li>
-        <router-link :to="URLS.FRACTION_CALCULATOR"
-          >Fraction calculator</router-link
-        >
+        <router-link :to="URLS.FRACTION_CALCULATOR">
+          Fraction calculator
+        </router-link>
       </li>
     </ul>
   </div>
