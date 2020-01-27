@@ -4,13 +4,17 @@
       <input
         type="number"
         name="numerator"
+        :class="{ 'danger-border': !isNumeratorFilled }"
         v-model.number="fraction.numerator"
+        @blur="handleInputBlur"
       />
       <hr />
       <input
         type="number"
         name="denominator"
+        :class="{ 'danger-border': !isDenominatorFilled || fraction.denominator === 0 }"
         v-model.number="fraction.denominator"
+        @blur="handleInputBlur"
       />
     </div>
     <select
@@ -24,14 +28,16 @@
     </select>
     <button v-if="isLast" @click="event => event.preventDefault()">=</button>
     <div v-if="isLast" class="fraction">
-      <input type="number" />
+      <input readonly type="number" />
       <hr />
-      <input type="number" />
+      <input readonly type="number" />
     </div>
   </div>
 </template>
 
 <script>
+import { isNumber } from "@/utils/helpers";
+
 export default {
   name: "Fraction",
   props: {
@@ -54,12 +60,28 @@ export default {
   data() {
     return {
       operationValues: ["+", "-", "*", "/"],
-      operationValue: this.operation
+      operationValue: this.operation,
+      isNumeratorFilled: false,
+      isDenominatorFilled: false
     };
   },
   methods: {
     handleSelectChange() {
       this.$emit("operationChange", this.operationValue);
+    },
+    handleInputBlur({ target: { name, value } }) {
+      const isValueNumber = isNumber(value);
+
+      if (name === "numerator") {
+        this.isNumeratorFilled = isValueNumber;
+      } else {
+        this.isDenominatorFilled = isValueNumber;
+      }
+    }
+  },
+  watch: {
+    operation: function(operationValue) {
+      this.operationValue = operationValue;
     }
   }
 };

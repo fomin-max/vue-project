@@ -19,4 +19,8 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+
+.danger-border {
+  border: 1px solid #ff0000;
+}
 </style>
