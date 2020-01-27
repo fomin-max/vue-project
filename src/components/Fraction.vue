@@ -1,23 +1,34 @@
 <template>
-  <fragment>
+  <div>
     <div class="fraction">
-      <input type="number" name="numerator" v-model="fraction.numerator" />
+      <input
+        type="number"
+        name="numerator"
+        v-model.number="fraction.numerator"
+      />
       <hr />
-      <input type="number" name="denominator" v-model="fraction.denominator" />
+      <input
+        type="number"
+        name="denominator"
+        v-model.number="fraction.denominator"
+      />
     </div>
-    <select v-if="!isLast">
-      <option value="+">+</option>
-      <option value="-">-</option>
-      <option value="*">*</option>
-      <option value="/">/</option>
+    <select
+      v-if="!isLast"
+      v-model="operationValue"
+      @change="handleSelectChange"
+    >
+      <option v-for="(operationValue, index) in operationValues" :key="index">
+        {{ operationValue }}
+      </option>
     </select>
-    <button v-if="isLast">=</button>
+    <button v-if="isLast" @click="event => event.preventDefault()">=</button>
     <div v-if="isLast" class="fraction">
       <input type="number" />
       <hr />
       <input type="number" />
     </div>
-  </fragment>
+  </div>
 </template>
 
 <script>
@@ -34,14 +45,31 @@ export default {
         numerator: "",
         denominator: ""
       })
+    },
+    operation: {
+      type: String,
+      default: () => ""
+    }
+  },
+  data() {
+    return {
+      operationValues: ["+", "-", "*", "/"],
+      operationValue: this.operation
+    };
+  },
+  methods: {
+    handleSelectChange() {
+      this.$emit("operationChange", this.operationValue);
     }
   }
 };
 </script>
 
 <style scoped>
-.fraction {
+div {
   display: inline-block;
+}
+.fraction {
   vertical-align: middle;
   margin: 0 1em;
 }

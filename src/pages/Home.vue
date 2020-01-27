@@ -21,9 +21,11 @@ import { URLS } from "@/constants";
 
 export default {
   name: "Home",
-  data: () => ({
-    URLS
-  })
+  data() {
+    return {
+      URLS
+    };
+  }
 };
 </script>
 

@@ -7,11 +7,31 @@
           v-for="(fraction, index) in fractions"
           :key="index"
           :fraction="fraction"
+          :operation="operations[index]"
+          @operationChange="operations[index] = $event"
         />
       </div>
-      <Fraction :isLast="true" />
+      <Fraction
+        :isLast="true"
+        :key="fractions.length"
+        :fraction="fraction"
+        :operation="operations[index]"
+        @operationChange="operations[index] = $event"
+      />
       <p class="error"></p>
-      <p><a>ADD FRACTION</a></p>
+      <p>
+        <button
+          @click="
+            e => {
+              e.preventDefault();
+              fractions = [...fractions, emptyFraction];
+              operations = [...operations, '+'];
+            }
+          "
+        >
+          ADD FRACTION
+        </button>
+      </p>
     </form>
   </div>
 </template>
@@ -21,15 +41,20 @@ import { Fraction } from "@/components";
 
 export default {
   name: "FractionCalculator",
-  data: () => ({
-    operations: [""],
-    fractions: [
-      {
-        numerator: "12",
-        denominator: "2"
-      }
-    ]
-  }),
+  data() {
+    const emptyFraction = {
+      numerator: "",
+      denominator: ""
+    };
+
+    return {
+      operations: ["+"],
+      emptyFraction: {
+        ...emptyFraction
+      },
+      fractions: [{ ...emptyFraction }]
+    };
+  },
   components: {
     Fraction
   }
