@@ -1,5 +1,9 @@
+export const isEmptyString = string => string === "";
+
 export const isInteger = value =>
   value !== "" && Number.isInteger(Number(value));
+
+export const isFalsy = value => value === false;
 
 export const add = (firstTerm, secondTerm) => {
   const numerator =
@@ -70,38 +74,32 @@ export const simplify = ({ numerator, denominator }) => {
 export const calculate = (currentFractions, currentOperations) => {
   let calculatedValue = currentFractions[0];
 
-  for (let iterator = 0; iterator < currentFractions.length; iterator++) {
-    switch (currentOperations[iterator]) {
+  currentFractions.forEach((currentFraction, index) => {
+    switch (currentOperations[index]) {
       case "+":
-        calculatedValue = add(
-          calculatedValue,
-          currentFractions[iterator + 1]
-        );
+        calculatedValue = add(calculatedValue, currentFractions[index + 1]);
 
         break;
       case "-":
         calculatedValue = subtract(
           calculatedValue,
-          currentFractions[iterator + 1]
+          currentFractions[index + 1]
         );
 
         break;
       case "*":
         calculatedValue = multiply(
           calculatedValue,
-          currentFractions[iterator + 1]
+          currentFractions[index + 1]
         );
 
         break;
       case "/":
-        calculatedValue = divide(
-          calculatedValue,
-          currentFractions[iterator + 1]
-        );
+        calculatedValue = divide(calculatedValue, currentFractions[index + 1]);
 
         break;
     }
-  }
+  });
 
   return simplify(calculatedValue);
 };

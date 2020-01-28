@@ -59,7 +59,7 @@ describe("fraction calculating", function() {
       )
     ).toEqual({ numerator: 1566493, denominator: 378650580 });
   });
-  it("should multiply on zero", function() {
+  it("should apply multiply on zero", function() {
     expect(
       calculate(
         [

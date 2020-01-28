@@ -4,7 +4,7 @@
       <input
         type="number"
         name="numerator"
-        :class="{ 'danger-border': !isNumeratorFilled }"
+        :class="{ 'danger-border': isFalsy(isNumeratorValid) }"
         v-model.number="fraction.numerator"
         @blur="handleInputBlur"
       />
@@ -13,7 +13,8 @@
         type="number"
         name="denominator"
         :class="{
-          'danger-border': !isDenominatorFilled || fraction.denominator === 0
+          'danger-border':
+            isFalsy(isDenominatorValid) || fraction.denominator === 0
         }"
         v-model.number="fraction.denominator"
         @blur="handleInputBlur"
@@ -28,8 +29,8 @@
         {{ operationValue }}
       </option>
     </select>
-    <button v-if="isLast" @click="event => event.preventDefault()">=</button>
-    <div v-if="isLast" class="fraction">
+    <button v-if="isLast" @click="$event.preventDefault()">=</button>
+    <div v-if="isLast && !isError && isCalculatedValueValid" class="fraction">
       <span>{{ calculatedValue.numerator }}</span>
       <hr />
       <span>{{ calculatedValue.denominator }}</span>
@@ -38,12 +39,16 @@
 </template>
 
 <script>
-import { isInteger } from "@/utils/helpers";
+import { isInteger, isFalsy } from "@/utils/helpers";
 
 export default {
   name: "Fraction",
   props: {
     isLast: {
+      type: Boolean,
+      default: false
+    },
+    isError: {
       type: Boolean,
       default: false
     },
@@ -70,9 +75,14 @@ export default {
     return {
       operationValues: ["+", "-", "*", "/"],
       operationValue: this.operation,
-      isNumeratorFilled: false,
-      isDenominatorFilled: false
+      isNumeratorValid: null,
+      isDenominatorValid: null,
+      isFalsy
     };
+  },
+  computed: {
+    isCalculatedValueValid: data =>
+      Object.values(data.calculatedValue).every(isInteger)
   },
   methods: {
     handleSelectChange() {
@@ -82,9 +92,9 @@ export default {
       const isValueInteger = isInteger(value);
 
       if (name === "numerator") {
-        this.isNumeratorFilled = isValueInteger;
+        this.isNumeratorValid = isValueInteger;
       } else {
-        this.isDenominatorFilled = isValueInteger;
+        this.isDenominatorValid = isValueInteger;
       }
     }
   },

@@ -7,6 +7,7 @@
           v-for="(fraction, index) in fractions"
           :key="index"
           :isLast="index === fractions.length - 1"
+          :isError="errorMessages.length > 0"
           :fraction="fraction"
           :operation="operations[index]"
           :calculatedValue="calculatedValue"
@@ -21,15 +22,7 @@
         {{ errorMessage }}
       </p>
       <p>
-        <button
-          @click="
-            e => {
-              e.preventDefault();
-              fractions = [...fractions, { ...emptyFraction }];
-              operations = [...operations, '+'];
-            }
-          "
-        >
+        <button @click="handleAddFractionClick">
           ADD FRACTION
         </button>
       </p>
@@ -39,7 +32,7 @@
 
 <script>
 import { Fraction } from "@/components";
-import { isInteger, calculate } from "@/utils/helpers";
+import { isInteger, calculate, isEmptyString } from "@/utils/helpers";
 
 export default {
   name: "FractionCalculator",
@@ -52,7 +45,6 @@ export default {
     return {
       operations: ["+"],
       emptyFraction: {
-        ...emptyFraction,
         ...emptyFraction
       },
       fractions: [{ ...emptyFraction }, { ...emptyFraction }],
@@ -68,13 +60,20 @@ export default {
       let newErrorMessages = [];
 
       currentFractions.forEach(({ numerator, denominator }) => {
-        if (!isInteger(numerator) || !isInteger(denominator)) {
+        if (denominator === 0) {
+          if (!newErrorMessages.includes("Division by zero")) {
+            newErrorMessages.push("Division by zero");
+          }
+        } else if (
+          (numerator && !isInteger(numerator)) ||
+          (denominator && !isInteger(denominator))
+        ) {
           if (!newErrorMessages.includes("Enter valid data")) {
             newErrorMessages.push("Enter valid data");
           }
-        } else if (Number(denominator) === 0) {
-          if (!newErrorMessages.includes("Division by zero")) {
-            newErrorMessages.push("Division by zero");
+        } else if (isEmptyString(numerator) || isEmptyString(denominator)) {
+          if (!newErrorMessages.includes("")) {
+            newErrorMessages.push("");
           }
         }
       });
@@ -94,6 +93,12 @@ export default {
       this.operations[index] = value;
 
       this.handleExpressionChange();
+    },
+    handleAddFractionClick: function(event) {
+      event.preventDefault();
+
+      this.fractions = [...this.fractions, { ...this.emptyFraction }];
+      this.operations = [...this.operations, "+"];
     }
   },
   watch: {
