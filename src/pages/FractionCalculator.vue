@@ -9,7 +9,8 @@
           :isLast="index === fractions.length - 1"
           :fraction="fraction"
           :operation="operations[index]"
-          @operationChange="operations[index] = $event"
+          :calculatedValue="calculatedValue"
+          @operationChange="handleOperationChange($event, index)"
         />
       </div>
       <p
@@ -38,7 +39,7 @@
 
 <script>
 import { Fraction } from "@/components";
-import { isNumber } from "@/utils/helpers";
+import { isInteger, calculate } from "@/utils/helpers";
 
 export default {
   name: "FractionCalculator",
@@ -55,33 +56,50 @@ export default {
         ...emptyFraction
       },
       fractions: [{ ...emptyFraction }, { ...emptyFraction }],
-      errorMessages: []
+      errorMessages: [],
+      calculatedValue: { ...emptyFraction }
     };
   },
   components: {
     Fraction
   },
-  // computed: {
-  //   calculatedValue: function() {}
-  // },
+  methods: {
+    validate: function(currentFractions) {
+      let newErrorMessages = [];
+
+      currentFractions.forEach(({ numerator, denominator }) => {
+        if (!isInteger(numerator) || !isInteger(denominator)) {
+          if (!newErrorMessages.includes("Enter valid data")) {
+            newErrorMessages.push("Enter valid data");
+          }
+        } else if (Number(denominator) === 0) {
+          if (!newErrorMessages.includes("Division by zero")) {
+            newErrorMessages.push("Division by zero");
+          }
+        }
+      });
+
+      this.errorMessages = newErrorMessages;
+    },
+    handleExpressionChange: function() {
+      this.validate(this.fractions);
+
+      const isNoErrors = this.errorMessages.length === 0;
+
+      if (isNoErrors) {
+        this.calculatedValue = calculate(this.fractions, this.operations);
+      }
+    },
+    handleOperationChange: function(value, index) {
+      this.operations[index] = value;
+
+      this.handleExpressionChange();
+    }
+  },
   watch: {
     fractions: {
-      handler: function(updatedFractions) {
-        let newErrorMessages = [];
-
-        updatedFractions.forEach(({ numerator, denominator }) => {
-          if (!isNumber(numerator) || !isNumber(denominator)) {
-            if (!newErrorMessages.includes("Enter valid data")) {
-              newErrorMessages.push("Enter valid data");
-            }
-          } else if (Number(denominator) === 0) {
-            if (!newErrorMessages.includes("Division by zero")) {
-              newErrorMessages.push("Division by zero");
-            }
-          }
-        });
-
-        this.errorMessages = newErrorMessages;
+      handler: function() {
+        this.handleExpressionChange();
       },
       deep: true
     }

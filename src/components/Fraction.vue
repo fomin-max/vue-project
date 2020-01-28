@@ -12,7 +12,9 @@
       <input
         type="number"
         name="denominator"
-        :class="{ 'danger-border': !isDenominatorFilled || fraction.denominator === 0 }"
+        :class="{
+          'danger-border': !isDenominatorFilled || fraction.denominator === 0
+        }"
         v-model.number="fraction.denominator"
         @blur="handleInputBlur"
       />
@@ -28,15 +30,15 @@
     </select>
     <button v-if="isLast" @click="event => event.preventDefault()">=</button>
     <div v-if="isLast" class="fraction">
-      <input readonly type="number" />
+      <span>{{ calculatedValue.numerator }}</span>
       <hr />
-      <input readonly type="number" />
+      <span>{{ calculatedValue.denominator }}</span>
     </div>
   </div>
 </template>
 
 <script>
-import { isNumber } from "@/utils/helpers";
+import { isInteger } from "@/utils/helpers";
 
 export default {
   name: "Fraction",
@@ -55,6 +57,13 @@ export default {
     operation: {
       type: String,
       default: () => ""
+    },
+    calculatedValue: {
+      type: Object,
+      default: () => ({
+        numerator: "",
+        denominator: ""
+      })
     }
   },
   data() {
@@ -70,12 +79,12 @@ export default {
       this.$emit("operationChange", this.operationValue);
     },
     handleInputBlur({ target: { name, value } }) {
-      const isValueNumber = isNumber(value);
+      const isValueInteger = isInteger(value);
 
       if (name === "numerator") {
-        this.isNumeratorFilled = isValueNumber;
+        this.isNumeratorFilled = isValueInteger;
       } else {
-        this.isDenominatorFilled = isValueNumber;
+        this.isDenominatorFilled = isValueInteger;
       }
     }
   },
