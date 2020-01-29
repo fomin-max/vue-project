@@ -29,7 +29,7 @@
         {{ operationValue }}
       </option>
     </select>
-    <button v-if="isLast" @click="$event.preventDefault()">=</button>
+    <button v-if="isLast" @click.prevent="">=</button>
     <div v-if="isLast && !isError && isCalculatedValueValid" class="fraction">
       <span>{{ calculatedValue.numerator }}</span>
       <hr />

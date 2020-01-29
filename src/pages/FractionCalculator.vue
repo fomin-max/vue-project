@@ -1,6 +1,9 @@
 <template>
   <div>
     <h1>Fraction calculator</h1>
+    <p>
+      <router-link :to="URLS.HOME">Go to home page</router-link>
+    </p>
     <form name="calc">
       <div class="fraction-list">
         <Fraction
@@ -33,6 +36,7 @@
 <script>
 import { Fraction } from "@/components";
 import { isInteger, calculate, isEmptyString } from "@/utils/helpers";
+import { URLS } from "@/constants";
 
 export default {
   name: "FractionCalculator",
@@ -43,6 +47,7 @@ export default {
     };
 
     return {
+      URLS,
       operations: ["+"],
       emptyFraction: {
         ...emptyFraction
