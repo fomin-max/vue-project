@@ -125,7 +125,4 @@ form {
 .fraction-list {
   display: inline-block;
 }
-.error {
-  color: red;
-}
 </style>

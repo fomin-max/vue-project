@@ -23,4 +23,8 @@ export default {
 .danger-border {
   border: 1px solid #ff0000;
 }
+
+.error {
+  color: #ff0000;
+}
 </style>

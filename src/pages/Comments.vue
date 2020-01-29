@@ -1,5 +1,5 @@
 <template>
-  <div style="padding: 0 40%">
+  <div class="wrapper">
     <h1>Comments</h1>
     <p>
       <router-link :to="URLS.HOME">Go to home page</router-link>
@@ -9,13 +9,15 @@
       type="text"
       v-model="commentText"
       @keyup.enter="createMessage"
+      style="min-width: 13rem"
     />
     &nbsp;
     <button @click="createMessage">Add comment</button>
-    <ul>
+    <p v-if="!!errorMessage" class="error">{{ errorMessage }}</p>
+    <ul v-else>
       <li v-for="(comment, index) in comments" :key="index">
         {{ comment.text }} &nbsp;
-        <button @click="() => handleCommentDelete(index)">Удалить</button>
+        <button @click="() => handleCommentDelete(comment)">Удалить</button>
       </li>
     </ul>
   </div>
@@ -23,6 +25,7 @@
 
 <script>
 import { URLS } from "@/constants";
+import { isEmptyString } from "@/utils/helpers";
 
 export default {
   name: "Comments",
@@ -65,14 +68,16 @@ export default {
       commentText: "",
       websocketUrl: "wss://echo.websocket.org/",
       requestNumber: 0,
-      maxId: 10,
       requestBuffer: {},
       comments: initialComments,
+      errorMessage: "",
       websocket: null
     };
   },
   methods: {
     createMessage() {
+      if (isEmptyString(this.commentText)) return;
+
       this.requestNumber = ++this.requestNumber;
 
       this.requestBuffer = {
@@ -80,28 +85,32 @@ export default {
         [this.requestNumber]: this.commentText
       };
 
+      this.commentText = "";
+
       this.websocket.send(this.requestNumber.toString());
     },
-    handleCommentDelete(index) {
+    handleCommentDelete(comment) {
+      if (comment.requestNumber) return;
+
       this.requestNumber = ++this.requestNumber;
 
-      this.comments[index].requestNumber = this.requestNumber;
+      comment.requestNumber = this.requestNumber;
 
       this.websocket.send(this.requestNumber.toString());
     },
     handleMessage({ data }) {
       const requestNumber = Number(data);
 
-      if (!requestNumber) return;
-
-      const commentToDelete = this.comments.find(
-        comment => comment.requestNumber === requestNumber
-      );
-
       const isDelete = !this.requestBuffer[requestNumber];
 
       // delete comment
       if (isDelete) {
+        const commentToDelete = this.comments.find(
+          comment => comment.requestNumber === requestNumber
+        );
+
+        if (!commentToDelete) return;
+
         this.comments = this.comments.filter(
           comment => comment.requestNumber !== commentToDelete.requestNumber
         );
@@ -115,30 +124,32 @@ export default {
         { text: this.requestBuffer[requestNumber] }
       ];
 
+      // clear buffer
       delete this.requestBuffer[requestNumber];
     },
-    handleClose(event) {
-      console.log("handleClose", event);
-    },
-    handleError(event) {
-      console.log("handleError", event);
+    handleError({ data }) {
+      if (data) {
+        this.errorMessage = `Websocket error: ${data}`;
+      } else {
+        this.errorMessage = "Unknown error";
+      }
     },
     initWebSocket() {
-      this.websocket = new WebSocket(this.websocketUrl);
+      if ("WebSocket" in window) {
+        this.websocket = new WebSocket(this.websocketUrl);
 
-      this.websocket.onmessage = event => {
-        this.handleMessage(event);
-      };
-      this.websocket.onclose = event => {
-        this.handleClose(event);
-      };
-      this.websocket.onerror = event => {
-        this.handleError(event);
-      };
+        this.websocket.onmessage = this.handleMessage;
+        this.websocket.onerror = this.handleError;
+      } else {
+        this.errorMessage = "Websocket is not supported by your browser";
+      }
     }
   },
   mounted() {
     this.initWebSocket();
+  },
+  destroyed() {
+    this.websocket.close();
   }
 };
 </script>
@@ -150,5 +161,9 @@ ul {
 }
 li {
   padding-bottom: 1rem;
+}
+.wrapper {
+  margin: 0 auto;
+  max-width: 20rem;
 }
 </style>
