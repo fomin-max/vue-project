@@ -161,6 +161,8 @@ ul {
 }
 li {
   padding-bottom: 1rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 .wrapper {
   margin: 0 auto;
